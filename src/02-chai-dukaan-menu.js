@@ -6,13 +6,13 @@
  * jisme har item ka naam UPPERCASE mein ho aur price ke saath likha ho.
  *
  * Rules:
- *   - items ek array hai of objects: [{ name: "masala chai", price: 15 }, ...]
- *   - Har item ka naam toUpperCase() karo
- *   - Format: "NAAM - Rs.PRICE" (e.g., "MASALA CHAI - Rs.15")
- *   - Saare formatted items ko " | " se join karo
- *   - Items jinka price 0 ya negative hai, unhe skip karo (filter out)
- *   - Items jinka naam empty string hai ya string nahi hai, unhe bhi skip karo
- *   - Hint: Use Array.isArray(), filter(), map(), join(), toUpperCase()
+  *   - items ek array hai of objects: [{ name: "masala chai", price: 15 }, ...]
+  *   - Har item ka naam toUpperCase() karo
+  *   - Format: "NAAM - Rs.PRICE" (e.g., "MASALA CHAI - Rs.15")
+  *   - Saare formatted items ko " | " se join karo
+  *   - Items jinka price 0 ya negative hai, unhe skip karo (filter out)
+  *   - Items jinka naam empty string hai ya string nahi hai, unhe bhi skip karo
+  *   - Hint: Use Array.isArray(), filter(), map(), join(), toUpperCase()
  *
  * Validation:
  *   - Agar items array nahi hai ya empty hai, return ""
@@ -29,4 +29,22 @@
  */
 export function formatChaiMenu(items) {
   // Your code here
+
+  if(!Array.isArray(items) || items.length === 0) return "";
+
+  let menu = items.filter(
+    (item) => item.price > 0 &&
+              item.name !== null &&
+              item.name !== "" &&
+              typeof item.name === "string"
+  )
+  
+  menu = menu.map(
+    (item) => `${item.name.toUpperCase()} - Rs.${item.price}`
+  );
+
+  menu = menu.join(" | ");
+  
+
+  return menu;
 }
