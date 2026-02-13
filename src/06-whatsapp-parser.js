@@ -10,14 +10,20 @@
  *
  * Rules:
  *   - Date extract karo: string ke start se pehle ", " (comma-space) tak
+ * 
  *   - Time extract karo: ", " ke baad se " - " (space-dash-space) tak
+ * 
  *   - Sender extract karo: " - " ke baad se pehle ": " (colon-space) tak
+ * 
  *   - Message text extract karo: pehle ": " ke baad (after sender) sab kuch, trimmed
+ * 
  *   - wordCount: message ke words count karo (split by space, filter empty strings)
+ * 
  *   - Sentiment detection (case-insensitive check on message text):
  *     - Agar message mein "😂" ya ":)" ya "haha" hai => sentiment = "funny"
  *     - Agar message mein "❤" ya "love" ya "pyaar" hai => sentiment = "love"
  *     - Otherwise => sentiment = "neutral"
+ * 
  *     - Agar dono match hote hain, "funny" gets priority
  *   - Hint: Use indexOf(), substring()/slice(), includes(), split(),
  *     trim(), toLowerCase()
@@ -40,4 +46,33 @@
  */
 export function parseWhatsAppMessage(message) {
   // Your code here
+
+  if(typeof message !== "string") return null;
+  if(!message.includes(" - ") || !message.includes(": ")) return null;
+
+
+  let commaIdx = message.indexOf(', ');
+  let space_dash_Idx = message.indexOf(' - ');
+  let collon_Idx = message.indexOf(': ');
+
+  let date = message.slice(0, commaIdx);
+  let time = message.slice(commaIdx+2, space_dash_Idx);
+  let sender = message.slice(space_dash_Idx+3, collon_Idx);
+  let text = message.slice(collon_Idx+2);
+
+  let wordCount = text.split(" ").length;
+
+  let sentiment = null;
+  if(text.includes("😂") || text.includes(":)") || text.toLowerCase().includes("haha")) sentiment = "funny";
+  else if(text.includes("❤") || text.includes("love") || text.includes("pyaar")) sentiment = "love";
+  else sentiment = "neutral";
+  
+  return {
+    date: date, 
+    time: time, 
+    sender: sender, 
+    text: text, 
+    wordCount: wordCount, 
+    sentiment: sentiment
+  }
 }
