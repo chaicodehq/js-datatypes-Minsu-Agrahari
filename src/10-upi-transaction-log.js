@@ -11,6 +11,7 @@
  *        to: "Rahul", category: "food", date: "2025-01-15" }, ...]
  *   - Skip transactions where amount is not a positive number
  *   - Skip transactions where type is not "credit" or "debit"
+ * 
  *   - Calculate (on valid transactions only):
  *     - totalCredit: sum of all "credit" type amounts
  *     - totalDebit: sum of all "debit" type amounts
@@ -18,12 +19,13 @@
  *     - transactionCount: total number of valid transactions
  *     - avgTransaction: Math.round(sum of all valid amounts / transactionCount)
  *     - highestTransaction: the full transaction object with highest amount
- *     - categoryBreakdown: object with category as key and total amount as value
+ * >    - categoryBreakdown: object with category as key and total amount as value
  *       e.g., { food: 1500, travel: 800 } (include both credit and debit)
  *     - frequentContact: the "to" field value that appears most often
  *       (if tie, return whichever appears first)
  *     - allAbove100: boolean, true if every valid transaction amount > 100 (use every)
  *     - hasLargeTransaction: boolean, true if some valid amount >= 5000 (use some)
+ * 
  *   - Hint: Use filter(), reduce(), sort(), find(), every(), some(),
  *     Object.entries(), Math.round(), typeof
  *
@@ -47,5 +49,79 @@
  *   //      frequentContact: "Swiggy", allAbove100: false, hasLargeTransaction: true }
  */
 export function analyzeUPITransactions(transactions) {
-  // Your code here
+
+  // validation
+  if (!Array.isArray(transactions) || transactions.length === 0) {
+    return null;
+  }
+
+  // filter valid transactions
+  let vaildTxns = transactions.filter(txn =>
+    typeof txn.amount === "number" &&
+    txn.amount > 0 &&
+    (txn.type === "credit" || txn.type === "debit")
+  );
+
+  if (vaildTxns.length === 0) return null;
+
+  // totals
+  let totalCredit = 0;
+  let totalDebit = 0;
+
+  vaildTxns.forEach(txn => {
+    if (txn.type === "credit") totalCredit += txn.amount;
+    else totalDebit += txn.amount;
+  });
+
+  let netBalance = totalCredit - totalDebit;
+  let transactionCount = vaildTxns.length;
+
+  let totalAmount = vaildTxns.reduce((sum, txn) => sum + txn.amount, 0);
+  let avgTransaction = Math.round(totalAmount / transactionCount);
+
+  // highest transaction
+  let highestTransaction = vaildTxns.reduce((max, txn) =>
+    txn.amount > max.amount ? txn : max,
+    vaildTxns[0]
+  );
+
+  // category breakdown
+  let categoryBreakdown = vaildTxns.reduce((acc, txn) => {
+    if (!acc[txn.category]) {
+      acc[txn.category] = 0;
+    }
+    acc[txn.category] += txn.amount;
+    return acc;
+  }, {});
+
+  // frequent contact
+  let counts = {};
+  let frequentContact = null;
+  let maxCount = 0;
+
+  vaildTxns.forEach(txn => {
+    counts[txn.to] = (counts[txn.to] || 0) + 1;
+
+    if (counts[txn.to] > maxCount) {
+      maxCount = counts[txn.to];
+      frequentContact = txn.to;
+    }
+  });
+
+  // booleans
+  let allAbove100 = vaildTxns.every(txn => txn.amount > 100);
+  let hasLargeTransaction = vaildTxns.some(txn => txn.amount >= 5000);
+
+  return { 
+          totalCredit: totalCredit, 
+          totalDebit: totalDebit, 
+          netBalance: netBalance, 
+          transactionCount: transactionCount, 
+          avgTransaction: avgTransaction, 
+          highestTransaction: highestTransaction, 
+          categoryBreakdown: categoryBreakdown, 
+          frequentContact: frequentContact, 
+          allAbove100: allAbove100, 
+          hasLargeTransaction: hasLargeTransaction 
+  };
 }
